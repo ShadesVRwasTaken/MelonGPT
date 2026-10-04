@@ -122,7 +122,7 @@
         <button class="settings-btn" id="settings-btn" title="Setup API Key">⚙️</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-        <div class="message bot-message">Welcome to MelonGPT! Click the ⚙️ gear icon in the header to save your Vercel Gateway Key and start chatting securely.</div>
+        <div class="message bot-message">Welcome to MelonGPT! Tap the ⚙️ gear icon in the header to save your GitHub PAT securely in your browser and start chatting.</div>
     </div>
     <div class="chat-input-area">
         <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
@@ -131,8 +131,9 @@
 </div>
 
 <script>
-    const GATEWAY_URL = "https://vercel.ai"; 
-    const MODEL_ID = "openai/gpt-4o-mini"; 
+    // Configured for GitHub Marketplace Models
+    const GATEWAY_URL = "https://azure.com"; 
+    const MODEL_ID = "meta-llama-3.1-70b-instruct"; 
 
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
@@ -143,16 +144,15 @@
         { role: "system", content: "You are MelonGPT, a helpful and friendly AI assistant themed around fresh melons." }
     ];
 
-    // Check browser storage for an existing key when loading up
+    // Check browser cache for your token
     let apiKey = localStorage.getItem('melongpt_key') || "";
 
-    // Manage setup button
     settingsBtn.addEventListener('click', () => {
-        const inputKey = prompt("Enter your Vercel AI Gateway Key (vck_...):", apiKey);
+        const inputKey = prompt("Enter your GitHub PAT (ghp_...):", apiKey);
         if (inputKey !== null) {
             apiKey = inputKey.trim();
             localStorage.setItem('melongpt_key', apiKey);
-            alert("Key saved locally inside your browser cache successfully!");
+            alert("Token saved safely in your browser memory!");
         }
     });
 
@@ -166,7 +166,7 @@
 
     async function handleSendMessage() {
         if (!apiKey) {
-            alert("Please tap the ⚙️ settings icon to input your API Key first!");
+            alert("Please tap the ⚙️ gear icon to input your GitHub PAT first!");
             return;
         }
 
@@ -201,7 +201,7 @@
             }
 
             const data = await response.json();
-            const botReply = data.choices.message.content;
+            const botReply = data.choices[0].message.content;
             
             loadingDiv.remove();
             appendMessage(botReply, 'bot-message');
@@ -209,7 +209,7 @@
 
         } catch (error) {
             console.error(error);
-            loadingDiv.innerText = "Error connecting to MelonGPT. Make sure your gateway allows web browser routing (CORS) or check your API key.";
+            loadingDiv.innerText = "Error connecting to MelonGPT. Make sure your PAT was pasted correctly and has access to GitHub Models.";
         }
     }
 
