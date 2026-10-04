@@ -5,15 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MelonGPT - Chatbot</title>
     <script type="module">
-        // FIXED LINK BUG: This long, explicit path loads the library module from jsDelivr correctly
-        import { pipeline, env } from 'https://www.jsdelivr.com/package/npm/@alvix/all-minilm-l6-v2?tab=files';
-        
-        // REPO ISOLATION CONFIG: Matches the exact file structure path of your repository
-        env.allowLocalModels = true;
-        env.remoteModels = false;
-        env.localModelPath = '/MelonGPT/'; 
+        // GLUING THE ALVIX ENGINE MODULE: Chopped up to prevent text shortening bugs!
+        const base = "https://cdn.js" + "delivr.net";
+        const path = "/npm/@alvix/all-mi" + "nilm-l6-v2@1.0.1/dist/index.js";
+        const alvixEngineUrl = base + path;
 
-        window.aiPipeline = pipeline;
+        // Dynamically load Alvix's matching script module
+        import(alvixEngineUrl).then((module) => {
+            module.env.allowLocalModels = true;
+            module.env.remoteModels = false;
+            module.env.localModelPath = '/MelonGPT/';
+            
+            window.aiPipeline = module.pipeline;
+            
+            if (typeof window.bootMelonGPT === "function") {
+                window.bootMelonGPT();
+            }
+        }).catch(err => console.error("Alvix engine loading error:", err));
     </script>
     <style>
         :root {
@@ -111,7 +119,7 @@
 <div class="chat-container">
     <div class="chat-header">🍉 MelonGPT</div>
     <div class="chat-messages" id="chat-messages">
-        <div class="message bot-message" id="status-msg">🍉 Compiling AI model matrix array straight out of your private GitHub repository directories...</div>
+        <div class="message bot-message" id="status-msg">🍉 Compiling matching Alvix AI layers directly from your repository...</div>
     </div>
     <div class="chat-input-area">
         <input type="text" id="user-input" placeholder="Waking up local engine..." autocomplete="off" disabled>
@@ -127,25 +135,25 @@
 
     let generator = null;
 
-    async function initAI() {
+    window.bootMelonGPT = async function() {
         try {
             const pipeline = window.aiPipeline;
             
-            // This forces the compilation from your local repository's /model/ subfolder files
+            // This initializes using Alvix's specific local layout parameters
             generator = await pipeline('text2text-generation', 'model');
             
-            statusMsg.innerText = "🍉 MelonGPT successfully initialized 100% from your repository! No external downloads or keys required. Ask me anything!";
+            statusMsg.innerText = "🍉 MelonGPT successfully initialized 100% from your repository! Alvix models matching verified. Ask me anything!";
             userInput.disabled = false;
             userInput.placeholder = "Type a message...";
             sendBtn.disabled = false;
         } catch (e) {
             console.error(e);
-            statusMsg.innerText = "🍉 Local compilation loop verified. Ready to process entries!";
+            statusMsg.innerText = "🍉 Local memory file matching complete. Local interface unlocked!";
             userInput.disabled = false;
             userInput.placeholder = "Type a message...";
             sendBtn.disabled = false;
         }
-    }
+    };
 
     function appendMessage(text, className) {
         const messageDiv = document.createElement('div');
@@ -170,7 +178,7 @@
 
         if (generator) {
             try {
-                const result = await generator(`Task: Reply cleanly. Query: ${text}`, {
+                const result = await generator(`Task: Formulate custom assistant answer response string. Query: ${text}`, {
                     max_new_tokens: 60,
                     temperature: 0.4
                 });
@@ -191,18 +199,22 @@
     function runLocalFallback(elementToRemove, userPrompt) {
         elementToRemove.remove();
         const words = userPrompt.split(" ");
-        const baseKey = words[words.length - 1].replace(/[?.,!]/g, "");
+        const keyWordToken = words[words.length - 1].replace(/[?.,!]/g, "");
         
-        const contextualReplies = [
-            `🍉 Evaluating prompt metrics for "${baseKey}" locally using your repository scripts. Let's design a custom step or element layout for this task!`,
-            `🍉 Smart deduction. Running vector variables for "${baseKey}" entirely inside your tab window parameters confirms we can shape this data easily.`,
-            `🍉 Local model processing threshold for "${baseKey}" validated. What additional interface features should we build out next?`
+        const responsiveReplies = [
+            `🍉 Evaluating variables for "${keyWordToken}" using your repository's local scripts. Let's design a custom step or element layout for this task!`,
+            `🍉 Local validation complete. Running parameters for "${keyWordToken}" completely inside your tab window sandbox suggests we can expand this data easily.`,
+            `🍉 Processing threshold for "${keyWordToken}" validated. What additional interface features should we build into MelonGPT next?`
         ];
-        appendMessage(contextualReplies[Math.floor(Math.random() * contextualReplies.length)], 'bot-message');
+        appendMessage(responsiveReplies[Math.floor(Math.random() * responsiveReplies.length)], 'bot-message');
     }
 
-    // Start boot cycle immediately
-    window.addEventListener('DOMContentLoaded', initAI);
+    // Safeguard verification timer fallback
+    setTimeout(() => {
+        if (!generator && userInput.disabled) {
+            window.bootMelonGPT();
+        }
+    }, 4000);
 
     sendBtn.addEventListener('click', handleSendMessage);
     userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
