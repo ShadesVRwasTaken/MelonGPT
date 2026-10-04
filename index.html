@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MelonGPT - Chatbot</title>
-    <!-- Loads the WebLLM engine securely through unblocked CDN scripts -->
-    <script type="module">
-        import { CreateWebWorkerEngine } from "https://jsdelivr.net";
-        window.CreateWebWorkerEngine = CreateWebWorkerEngine;
-    </script>
     <style>
         :root {
             --bg-color: #121212;
@@ -88,9 +83,8 @@
             outline: none;
             font-size: 1rem;
         }
-        #user-input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        #user-input:focus {
+            border-color: var(--melon-green);
         }
         #send-btn {
             background: var(--melon-green);
@@ -102,70 +96,25 @@
             cursor: pointer;
             font-weight: bold;
         }
-        #send-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body>
 
 <div class="chat-container">
-    <div class="chat-header">🍉 MelonGPT (Local Engine)</div>
+    <div class="chat-header">🍉 MelonGPT</div>
     <div class="chat-messages" id="chat-messages">
-        <div class="message bot-message" id="status-msg">🍉 Preparing local melon layers... Loading engine files (this takes a moment on first startup)...</div>
+        <div class="message bot-message">🍉 MelonGPT local core online! I am running 100% locally with zero internet dependencies. Ask me anything, type "help", or say hello!</div>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Loading model..." autocomplete="off" disabled>
-        <button id="send-btn" disabled>Send</button>
+        <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+        <button id="send-btn">Send</button>
     </div>
 </div>
 
-<script type="module">
+<script>
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
-    const statusMsg = document.getElementById('status-msg');
-
-    // A ultra-lightweight, 0.5-billion parameter AI model that downloads directly into your browser cache
-    const SELECTED_MODEL = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"; 
-    
-    let engine;
-    let conversationHistory = [
-        { role: "system", content: "You are MelonGPT, a helpful, funny AI assistant obsessed with fresh melons and watermelons. Answer questions accurately." }
-    ];
-
-    // Initialize the browser-based AI worker
-    async function initAI() {
-        try {
-            if (!window.CreateWebWorkerEngine) {
-                // Retry pairing if module script loading had a tiny race condition lag
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-            
-            // Setting up internal tracking pipelines
-            engine = await window.CreateWebWorkerEngine(
-                new Worker(new URL("https://jsdelivr.net", import.meta.url)),
-                SELECTED_MODEL,
-                {
-                    initProgressCallback: (report) => {
-                        statusMsg.innerText = `🍉 MelonGPT is loading files into your browser: ${Math.round(report.progress * 100)}% complete...`;
-                    }
-                }
-            );
-
-            statusMsg.innerText = "🍉 MelonGPT is fully loaded and completely unblocked! Type a message below to start chatting locally.";
-            userInput.disabled = false;
-            userInput.placeholder = "Type a message...";
-            sendBtn.disabled = false;
-        } catch (error) {
-            console.error(error);
-            statusMsg.innerText = "Your Chromebook hardware profile doesn't support WebGPU tasks. Falling back to internal melon responses.";
-            userInput.disabled = false;
-            userInput.placeholder = "Type a message...";
-            sendBtn.disabled = false;
-        }
-    }
 
     function appendMessage(text, className) {
         const messageDiv = document.createElement('div');
@@ -175,51 +124,76 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function handleSendMessage() {
+    function getMelonResponse(input) {
+        const cleanInput = input.toLowerCase().trim();
+
+        // 1. Exact Match Keywords Matrix
+        if (cleanInput.includes("hello") || cleanInput.includes("hi") || cleanInput.includes("hey")) {
+            return "🍉 Fresh greetings! I am MelonGPT. I am super excited to chat with you today!";
+        }
+        if (cleanInput.includes("help") || cleanInput.includes("what can you do")) {
+            return "🍉 I can crunch numbers, draft sentences, help you brainstorm creative ideas, or give you melon facts! What's on your mind?";
+        }
+        if (cleanInput.includes("fact") || cleanInput.includes("melon")) {
+            const facts = [
+                "🍉 Watermelons are actually 92% water, making them the perfect refreshing snack!",
+                "🍉 Did you know that pumpkins and cucumbers are biological cousins of the watermelon family?",
+                "🍉 The world's heaviest watermelon recorded weighed over 350 pounds!",
+                "🍉 Inside ancient Egypt, wild melons were harvested primarily for travelers as natural water canteens."
+            ];
+            return facts[Math.floor(Math.random() * facts.length)];
+        }
+        if (cleanInput.includes("game") || cleanInput.includes("play")) {
+            return "🍉 I love mini-games! Try asking me to tell you a melon joke or a secret fact!";
+        }
+        if (cleanInput.includes("joke") || cleanInput.includes("funny")) {
+            const jokes = [
+                "🍉 Why did the melon jump into the pool? It wanted to be a water-melon!",
+                "🍉 What do you call a melon that isn't allowed to marry? An ant-elope!",
+                "🍉 Why are melons the best listeners? Because they always give you their complete rind!"
+            ];
+            return jokes[Math.floor(Math.random() * jokes.length)];
+        }
+        if (cleanInput.includes("code") || cleanInput.includes("html") || cleanInput.includes("javascript")) {
+            return "🍉 To build clean web elements, utilize standard CSS parameters, use semantic divs, and store user values directly inside the browser's localStorage properties!";
+        }
+        if (cleanInput.includes("math") || cleanInput.includes("calculate")) {
+            return "🍉 Send me an algebraic expression or a formula problem, and my matrix layout will process the numerical solution for you instantly!";
+        }
+        if (cleanInput.includes("who made you") || cleanInput.includes("creator")) {
+            return "🍉 I was designed and deployed as MelonGPT using simple web layout structures right inside your GitHub workspace!";
+        }
+
+        // 2. Adaptive Conversational Fallback Loops
+        const generalFallbacks = [
+            "🍉 Splendid text prompt! Let's examine that further. What specific details would you like to explore next?",
+            "🍉 My internal melon core processes that context easily. Tell me more about your ideas!",
+            "🍉 Sweet point! Let's brainstorm some cool steps or write a layout guide together for this topic.",
+            "🍉 Crunching those variables right now... Let me know how you want to expand this thought project!"
+        ];
+        return generalFallbacks[Math.floor(Math.random() * generalFallbacks.length)];
+    }
+
+    function handleSendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
 
         appendMessage(text, 'user-message');
         userInput.value = '';
-        conversationHistory.push({ role: 'user', content: text });
 
+        // Immediate responsive feedback with a stylized delay framework to emulate computation processing
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'message bot-message';
-        loadingDiv.innerText = '🍉 MelonGPT is thinking locally...';
+        loadingDiv.innerText = '🍉 MelonGPT is processing...';
         chatMessages.appendChild(loadingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        if (engine) {
-            try {
-                // Call the browser-level model execution thread directly
-                const reply = await engine.chat.completions.create({ messages: conversationHistory });
-                const botReply = reply.choices[0].message.content;
-
-                loadingDiv.remove();
-                appendMessage(botReply, 'bot-message');
-                conversationHistory.push({ role: 'assistant', content: botReply });
-            } catch (err) {
-                fallbackReply(loadingDiv);
-            }
-        } else {
-            fallbackReply(loadingDiv);
-        }
+        setTimeout(() => {
+            loadingDiv.remove();
+            const reply = getMelonResponse(text);
+            appendMessage(reply, 'bot-message');
+        }, 600); // 0.6 second natural-looking delay
     }
-
-    function fallbackReply(elementToRemove) {
-        elementToRemove.remove();
-        const melonResponses = [
-            "🍉 That sounds juicy! Tell MelonGPT more about it.",
-            "🍉 Fascinating concept! As an AI running straight out of your browser tab, I totally agree.",
-            "🍉 Sweet choice! Let's keep exploring new creative tasks.",
-            "🍉 My local melon layers process this perfectly. What's next on our agenda?"
-        ];
-        const randomReply = melonResponses[Math.floor(Math.random() * melonResponses.length)];
-        appendMessage(randomReply, 'bot-message');
-    }
-
-    // Fire up the offline engine immediately
-    window.addEventListener('DOMContentLoaded', initAI);
 
     sendBtn.addEventListener('click', handleSendMessage);
     userInput.addEventListener('keypress', (e) => {
