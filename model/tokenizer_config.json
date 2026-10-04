@@ -1,0 +1,1 @@
+{"do_lower_case":true,"model_max_length":512,"never_split":null,"padding_side":"right","tokenizer_class":"BertTokenizer"}
