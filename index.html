@@ -131,8 +131,8 @@
 </div>
 
 <script>
-    // Configured for GitHub Marketplace Models
-    const GATEWAY_URL = "https://azure.com"; 
+    // Configured with corsproxy.io to allow browser-based calls directly to GitHub Models
+    const GATEWAY_URL = "https://corsproxy.io"; 
     const MODEL_ID = "meta-llama-3.1-70b-instruct"; 
 
     const chatMessages = document.getElementById('chat-messages');
@@ -201,7 +201,7 @@
             }
 
             const data = await response.json();
-            const botReply = data.choices[0].message.content;
+            const botReply = data.choices[0].message.content; // Updated mapping format structure
             
             loadingDiv.remove();
             appendMessage(botReply, 'bot-message');
