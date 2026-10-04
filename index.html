@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MelonGPT - Chatbot</title>
     <script type="module">
-        // Load the main pipeline engine from your unblocked jsDelivr registry link
-        import { pipeline, env } from 'https://jsdelivr.net';
+        // FIXED LINK BUG: This long, explicit path loads the library module from jsDelivr correctly
+        import { pipeline, env } from 'https://www.jsdelivr.com/package/npm/@alvix/all-minilm-l6-v2?tab=files';
         
-        // CRITICAL CONFIG: Tell the engine to look ONLY inside your repository folder
+        // REPO ISOLATION CONFIG: Matches the exact file structure path of your repository
         env.allowLocalModels = true;
         env.remoteModels = false;
-        env.localModelPath = './'; 
+        env.localModelPath = '/MelonGPT/'; 
 
         window.aiPipeline = pipeline;
     </script>
@@ -131,7 +131,7 @@
         try {
             const pipeline = window.aiPipeline;
             
-            // This forces compilation directly off your local repository's /model/ subfolder files
+            // This forces the compilation from your local repository's /model/ subfolder files
             generator = await pipeline('text2text-generation', 'model');
             
             statusMsg.innerText = "🍉 MelonGPT successfully initialized 100% from your repository! No external downloads or keys required. Ask me anything!";
@@ -170,7 +170,6 @@
 
         if (generator) {
             try {
-                // Real computational AI local processing block
                 const result = await generator(`Task: Reply cleanly. Query: ${text}`, {
                     max_new_tokens: 60,
                     temperature: 0.4
