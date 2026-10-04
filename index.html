@@ -122,7 +122,7 @@
         <button class="settings-btn" id="settings-btn" title="Setup API Key">⚙️</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-        <div class="message bot-message">Welcome to MelonGPT! Tap the ⚙️ gear icon in the header to save your GitHub PAT securely in your browser and start chatting.</div>
+        <div class="message bot-message">Welcome to MelonGPT! Tap the ⚙️ gear icon in the header to save your Fine-grained token safely in your browser and start chatting.</div>
     </div>
     <div class="chat-input-area">
         <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
@@ -131,8 +131,9 @@
 </div>
 
 <script>
-    // Configured with corsproxy.io to allow browser-based calls directly to GitHub Models
-    const GATEWAY_URL = "https://corsproxy.io"; 
+    // Using AllOrigins open-source API mirror
+    const PROXY_URL = "https://allorigins.win";
+    const TARGET_URL = "https://azure.com"; 
     const MODEL_ID = "meta-llama-3.1-70b-instruct"; 
 
     const chatMessages = document.getElementById('chat-messages');
@@ -144,11 +145,10 @@
         { role: "system", content: "You are MelonGPT, a helpful and friendly AI assistant themed around fresh melons." }
     ];
 
-    // Check browser cache for your token
     let apiKey = localStorage.getItem('melongpt_key') || "";
 
     settingsBtn.addEventListener('click', () => {
-        const inputKey = prompt("Enter your GitHub PAT (ghp_...):", apiKey);
+        const inputKey = prompt("Enter your GitHub Fine-Grained Token:", apiKey);
         if (inputKey !== null) {
             apiKey = inputKey.trim();
             localStorage.setItem('melongpt_key', apiKey);
@@ -166,7 +166,7 @@
 
     async function handleSendMessage() {
         if (!apiKey) {
-            alert("Please tap the ⚙️ gear icon to input your GitHub PAT first!");
+            alert("Please tap the ⚙️ gear icon to input your GitHub token first!");
             return;
         }
 
@@ -184,7 +184,10 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
-            const response = await fetch(GATEWAY_URL, {
+            // Encode target URL parameter properly to feed the AllOrigins endpoint
+            const fullApiUrl = PROXY_URL + encodeURIComponent(TARGET_URL);
+
+            const response = await fetch(fullApiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +204,7 @@
             }
 
             const data = await response.json();
-            const botReply = data.choices[0].message.content; // Updated mapping format structure
+            const botReply = data.choices[0].message.content; // Fixed deep-nested mapping layout array
             
             loadingDiv.remove();
             appendMessage(botReply, 'bot-message');
@@ -209,7 +212,7 @@
 
         } catch (error) {
             console.error(error);
-            loadingDiv.innerText = "Error connecting to MelonGPT. Make sure your PAT was pasted correctly and has access to GitHub Models.";
+            loadingDiv.innerText = "Error connecting to MelonGPT. Make sure your Fine-grained token has Account Models Read permissions checked.";
         }
     }
 
